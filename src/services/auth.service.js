@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const { generateToken }= require("../utils/jwt");
 
 const userModel = require("../models/user.model");
 
@@ -24,7 +24,7 @@ const registerUser = async ({ name, email, password }) => {
         password: hashedPassword,
     });
 
-    const token = jwt.sign(
+    const token = generateToken(
         {
             id: result.lastInsertRowid,
             email,
