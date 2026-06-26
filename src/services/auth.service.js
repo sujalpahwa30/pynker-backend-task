@@ -3,6 +3,8 @@ const { generateToken }= require("../utils/jwt");
 
 const userModel = require("../models/user.model");
 
+const AppError = require("../utils/AppError");
+
 const SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS);
 
 /**
@@ -13,7 +15,7 @@ const registerUser = async ({ name, email, password }) => {
     const existingUser = userModel.findUserByEmail(email);
 
     if (existingUser) {
-        throw new Error("Email already registered");
+        throw new AppError("Email already registered", 409);
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -49,7 +51,7 @@ const loginUser = async ({ email, password }) => {
     const user = userModel.findUserByEmail(email);
 
     if (!user) {
-        throw new Error("Invalid email or password");
+        throw new AppError("Invalid email or password", 401);
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -58,7 +60,7 @@ const loginUser = async ({ email, password }) => {
     );
 
     if (!isPasswordValid) {
-        throw new Error("Invalid email or password");
+        throw new AppError("Invalid email or password", 401);
     }
 
     const token = generateToken({
