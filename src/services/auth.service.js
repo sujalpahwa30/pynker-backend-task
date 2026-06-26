@@ -45,6 +45,38 @@ const registerUser = async ({ name, email, password }) => {
     };
 };
 
+const loginUser = async ({ email, password }) => {
+    const user = userModel.findUserByEmail(email);
+
+    if (!user) {
+        throw new Error("Invalid email or password");
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+        password,
+        user.password
+    );
+
+    if (!isPasswordValid) {
+        throw new Error("Invalid email or password");
+    }
+
+    const token = generateToken({
+        id: user.id,
+        email: user.email,
+    });
+
+    return {
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        },
+        token,
+    };
+};
+
 module.exports = {
     registerUser,
+    loginUser,
 };
